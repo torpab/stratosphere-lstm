@@ -11,6 +11,8 @@ from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Masking, Dropout
 from keras.layers.recurrent import GRU
 from keras.callbacks import ModelCheckpoint
+from keras.preprocessing.text import Tokenizer
+import numpy as np
 
 
 def filter_by_string(df, col, string):
@@ -47,10 +49,9 @@ def split_data(data, split_pct=0.1):
 def build_lstm(input_shape):
     model = Sequential()
     model.add(Masking(input_shape=input_shape, mask_value=-1.))
-    model.add(GRU(128,
-                  return_sequences=False))
+    # model.add(GRU(128, return_sequences=True))
 
-    # model.add(GRU(128, return_sequences=False))
+    model.add(GRU(128, return_sequences=False))
     # Add dropout if overfitting
     # model.add(Dropout(0.5))
     model.add(Dense(1))
@@ -84,9 +85,9 @@ if __name__ == "__main__":
         sys.exit(1)
 
     # FILTER by Protocol and then Category
-    normal_data = filter_by_string(filter_by_string(df, 'label', 'UDP'),
+    normal_data = filter_by_string(filter_by_string(df, 'label', 'TCP'),
         'label', 'Normal')['state'].values.tolist()
-    botnet_data = filter_by_string(filter_by_string(df, 'label', 'UDP'),
+    botnet_data = filter_by_string(filter_by_string(df, 'label', 'TCP'),
         'label', 'Botnet')['state'].values.tolist()
 
     # Set 0 or 1 depending on the sample Category
@@ -105,9 +106,17 @@ if __name__ == "__main__":
     # set the max number of steps (max length of sequences)
     maxlen = min(len(max(train_x_data, key=len)), 100)
 
+    n_chars = 5
+    seq_set = set()
+    dat = [[a[i:i+n_chars] for i in range(0, len(a), n_chars)] for a in train_x_data]
+    seq_set.add(x for x in [y for y in dat])
+
+
+
     # vectorize the data to feed the net
-    train_x_data, train_y_data = stf_dataset.vectorize(train_x_data,
-        train_y_data, mode='int', sampling='OverSampler', maxlen=maxlen, minlen=maxlen, start_offset=5)
+    #train_x_data, train_y_data = stf_dataset.vectorize(train_x_data,
+    #    train_y_data, mode='int', sampling='OverSampler', maxlen=maxlen, minlen=maxlen, start_offset=5)
+
 
     # build the net
     model = build_lstm(input_shape=(maxlen, 4))
@@ -118,7 +127,7 @@ if __name__ == "__main__":
 
     # train the model
     train_model(model, train_x_data, train_y_data,
-            checkpointer=checkpointer, batch_size=len(train_x_data) / 10, epochs=40)
+            checkpointer=checkpointer, batch_size=len(train_x_data), epochs=30)
     test_x_data, test_y_data = zip(*test_data)
     model.load_weights(filename)
 

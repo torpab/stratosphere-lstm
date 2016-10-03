@@ -101,12 +101,12 @@ def vectorize(X, Y, word_model=None, maxlen=100, mode='state',
         Y_data = np.asarray(Y_data)
 
         X_data = np.full(
-            (len(X_array), maxlen, n_states), -1, dtype=np.float)
+            (len(X_array), maxlen, n_states), -1., dtype=np.float)
         for i, sentence in enumerate(X_array):
             for t, char_state in enumerate(sentence[:maxlen]):
                 # n_sample, timestep, value
                 for n, a in enumerate(dict_states.get(char_state)):
-                    X_data[i, maxlen - t - 1, n] = a
+                    X_data[i, t, n] = a
 
         if sampling != 'None':
             X_data, Y_data = apply_sampling(
