@@ -10,7 +10,7 @@ import stf_dataset
 from keras.models import Sequential
 from keras.layers.core import Dense, Activation, Masking, Dropout
 from keras.layers.recurrent import GRU
-from keras.layers import Convolution1D, MaxPooling1D
+from keras.layers import Convolution1D, MaxPooling1D, Flatten
 from keras.callbacks import ModelCheckpoint
 from keras.layers import Embedding
 from keras.preprocessing.text import Tokenizer
@@ -59,7 +59,9 @@ def build_lstm(input_shape):
                             border_mode='valid',
                             activation='relu',
                             subsample_length=1))
-    model.add(MaxPooling1D(pool_length=4))
+    model.add(MaxPooling1D(pool_length=model.output_shape[1]))
+
+    model.add(Flatten())
 
     model.add(Dense(128))
 
