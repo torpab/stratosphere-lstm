@@ -13,9 +13,10 @@ from collections import OrderedDict
 # import pandas as pd
 from keras.preprocessing import sequence
 from keras.preprocessing import text
-from unbalanced_dataset import OverSampler, UnderSampler, OneSidedSelection
-from unbalanced_dataset import TomekLinks, SMOTETomek, SMOTE
-from unbalanced_dataset import CondensedNearestNeighbour, NearMiss, NeighbourhoodCleaningRule
+from imblearn.under_sampling import RandomUnderSampler, OneSidedSelection
+from imblearn.under_sampling import CondensedNearestNeighbour, NearMiss, NeighbourhoodCleaningRule 
+from imblearn.over_sampling import RandomOverSampler, SMOTE
+from imblearn.combine import SMOTETomek
 import sys
 
 
